@@ -34,3 +34,7 @@ if a virtual environment has already been activated by either `mkvenv` or `findv
 ## How to use / "Install"
 
 source the `venv_tools.zsh` file in your `~/.zshrc`, `~/.zprofile`, or `~/.zlogin` (depending on your preference)
+
+## Known bugs
+
+* command line utilities installed via `pip install` aren't available until the virtual environment is de-activated and re-activated.
