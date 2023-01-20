@@ -21,6 +21,36 @@ function mkvenv() {
     export VENV_ROOT
 }
 
+function rmvenv() {
+    if [[ ! -f "$PWD/.venv" ]]; then
+        echo "no .venv file in this directory" 1>&2
+        return
+    fi
+
+    VENV_ID=$(<.venv)
+    # safety check -- should be a full-length uuid
+    if [[ ! $VENV_ID =~ ^[0-9A-G\-]{36}$ ]]; then
+        echo ".venv file doesn't have a uuid" 1>&2
+    fi
+
+    # paranoia -- shouldn't have changed
+    if [[ ! $VENV_HOME =~ ^${HOME}/[.]venv ]]; then
+        echo "\$VENV_HOME isn't valid: $VENV_HOME" 1>&2
+    fi
+
+    # deactivate the virtual environment
+    type deactivate > /dev/null \
+        && deactivate
+
+    [[ $VENV_ROOT ]] \
+        && unset VENV_ROOT
+
+    # remove the configuration files
+    VENV_PATH="$VENV_HOME/$VENV_ID"
+    rm -fr $VENV_PATH
+    rm .venv
+}
+
 function findvenv() {
     CUR_PATH=$PWD
 
@@ -37,7 +67,7 @@ function findvenv() {
        && [[ $CUR_PATH != '/' ]] \
        && [[ $CUR_PATH != '' ]]; do
         if [[ -f "$CUR_PATH/.venv" ]]; then
-            VENV_PATH="$VENV_HOME/$(cat $CUR_PATH/.venv)"
+            VENV_PATH="$VENV_HOME/$(<$CUR_PATH/.venv)"
             if [[ $VENV_PATH == $VENV_HOME ]] \
             || [[ ! -d $VENV_PATH ]] \
             || [[ ! -f "$VENV_PATH/bin/activate" ]]; then
