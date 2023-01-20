@@ -57,7 +57,7 @@ function findvenv() {
 
 # register findvenv as one of the chpwd functions if it's not already there
 include_func="findvenv"
-if ! (($chpwd_functions[(Ie)$include_func])); then
-    chpwd_functions=( ${chpwd_functions} findvenv )
+if ! (($precmd_functions[(Ie)$include_func])); then
+    precmd_functions=( ${precmd_functions} findvenv )
 fi
 
