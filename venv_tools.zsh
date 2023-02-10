@@ -62,6 +62,13 @@ function findvenv() {
         unset VENV_ROOT
     fi
 
+    # new tmux/zellij/vimterm panes should get the environment too
+    # (this might be a band-aid for something I should fix at a different level)
+    if [[ $VENV_ROOT ]] \
+    && ! type deactivate &> /dev/null; then
+        unset VENV_ROOT
+    fi
+
     # watch for .venv files in cwd and activate them when found
     while [[ ! $VENV_ROOT ]] \
        && [[ $CUR_PATH != '/' ]] \
