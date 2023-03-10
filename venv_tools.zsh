@@ -1,5 +1,9 @@
 VENV_HOME="$HOME/.venv"
 
+function can_deactivate() {
+    type deactivate &> /dev/null
+}
+
 function mkvenv() {
     if [[ -f "$PWD/.venv" ]]; then
         echo ".venv file exists, delete it first" 1>&2
@@ -39,8 +43,7 @@ function rmvenv() {
     fi
 
     # deactivate the virtual environment
-    type deactivate > /dev/null \
-        && deactivate
+    can_deactivate && deactivate
 
     [[ $VENV_ROOT ]] \
         && unset VENV_ROOT
@@ -58,14 +61,14 @@ function findvenv() {
     if [[ $CUR_PATH ]] \
     && [[ $VENV_ROOT ]] \
     && [[ $CUR_PATH != $VENV_ROOT* ]]; then
-        deactivate
+        can_deactivate && deactivate
         unset VENV_ROOT
     fi
 
     # new tmux/zellij/vimterm panes should get the environment too
     # (this might be a band-aid for something I should fix at a different level)
     if [[ $VENV_ROOT ]] \
-    && ! type deactivate &> /dev/null; then
+    && ! can_deactivate; then
         unset VENV_ROOT
     fi
 
