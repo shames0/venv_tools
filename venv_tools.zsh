@@ -1,5 +1,11 @@
 VENV_HOME="$HOME/.venv"
 
+function activate_virtualenv() {
+    VENV_PATH=$1
+    source "$VENV_PATH/bin/activate"
+    export WORKON_HOME=$VENV_PATH
+}
+
 function can_deactivate() {
     type deactivate &> /dev/null
 }
@@ -18,7 +24,7 @@ function mkvenv() {
     VENV_ROOT_NAME=$(basename $PWD)
     echo "creating virtual environment..."
     python3 -m venv --prompt $VENV_ROOT_NAME $VENV_PATH
-    source "$VENV_PATH/bin/activate"
+    activate_virtualenv $VENV_PATH
     # pip install -r requirements.txt ... maybe?
 
     VENV_ROOT=$PWD
@@ -84,7 +90,7 @@ function findvenv() {
                 echo "found stale .venv file: $CUR_PATH/.venv" 1>&2
                 return
             else
-                source "$VENV_PATH/bin/activate"
+                activate_virtualenv $VENV_PATH
                 VENV_ROOT=$CUR_PATH
 
                 export VENV_ROOT
