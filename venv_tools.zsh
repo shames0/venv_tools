@@ -1,4 +1,4 @@
-VENV_HOME="$HOME/.venv"
+VENV_HOME="$HOME/.local/share/virtualenvs"
 
 function activate_virtualenv() {
     VENV_PATH=$1
@@ -16,7 +16,8 @@ function mkvenv() {
         return
     fi
 
-    VENV_ID=$(uuidgen | tee .venv)
+    folder_name=$(basename $PWD)
+    VENV_ID=$(echo "${folder_name}-$(uuidgen)" | tee .venv)
 
     # create the new venv and switch to it
     VENV_PATH="$VENV_HOME/$VENV_ID"
@@ -25,6 +26,11 @@ function mkvenv() {
     echo "creating virtual environment..."
     python3 -m venv --prompt $VENV_ROOT_NAME $VENV_PATH
     activate_virtualenv $VENV_PATH
+
+    if [[ -f "$PWD/Pipfile" ]]; then
+        pip install pipenv
+        pipenv install
+    fi
     # pip install -r requirements.txt ... maybe?
 
     VENV_ROOT=$PWD
@@ -39,13 +45,15 @@ function rmvenv() {
 
     VENV_ID=$(<.venv)
     # safety check -- should be a full-length uuid
-    if [[ ! $VENV_ID =~ ^[0-9A-G\-]{36}$ ]]; then
+    if [[ ! $VENV_ID =~ [0-9A-G\-]{36}$ ]]; then
         echo ".venv file doesn't have a uuid" 1>&2
+        return
     fi
 
     # paranoia -- shouldn't have changed
-    if [[ ! $VENV_HOME =~ ^${HOME}/[.]venv ]]; then
+    if [[ ! $VENV_HOME =~ ^${HOME}/ ]]; then
         echo "\$VENV_HOME isn't valid: $VENV_HOME" 1>&2
+        return
     fi
 
     # deactivate the virtual environment
